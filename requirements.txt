@@ -1,3 +1,6 @@
 Flask
 google-generativeai
-
+fitz
+chromadb
+sentence_transformers
+PyMuPDF

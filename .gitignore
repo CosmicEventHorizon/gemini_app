@@ -1,1 +1,3 @@
 node_modules
+utils/__pycache__
+retriever/__pycache__
