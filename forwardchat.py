@@ -14,7 +14,11 @@ def index():
 def submit():
     prompt = request.form['prompt']
     context = get_relevant_chunks(prompt, k=3)
+    error = "Please reload the database"
 
+    if context == None:
+        return render_template('index.html', response=error)
+    
     final_prompt = f"""
     You are a helpful assistant for the company Ebovir.
     You advertise Ebovir products and answer customer's questions.
