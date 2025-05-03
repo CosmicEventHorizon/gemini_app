@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Medical LLM Query</title>
+</head>
+<body>
+    <h1>Medical Question Form</h1>
+    <form action="/submit" method="post">
+        <textarea name="prompt" rows="5" cols="50" required></textarea><br>
+        <input type="submit" value="Submit">
+    </form>
+
+    {% if response %}
+    <div class="response">
+        {{ response|safe }}
+    </div>
+    {% endif %}
+</body>
+</html>
