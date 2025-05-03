@@ -1,6 +1,5 @@
 Flask
 google-generativeai
-fitz
 chromadb
 PyMuPDF
 frontend
