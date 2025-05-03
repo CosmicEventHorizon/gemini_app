@@ -1,3 +1,11 @@
+'''
+The following code uses Google's embedding model to generate embeddings given text
+Call parameters:
+text - text to convert to embeddings
+Function returns:
+NumPy array containing float numbers corresponding to the text.
+'''
+
 import os
 import base64
 import tempfile

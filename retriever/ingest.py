@@ -1,10 +1,10 @@
 '''
 The following code splits a pdf file into max_tokens chunks then maps the chunks to embeddings and stores
-them in a chromadb database in memory (these functions should run once to generate the database)
+them in a chromadb database under data/chroma_db (these functions should run once to generate the database)
 Call parameters:
-text - text to convert to embeddings
+pdf file to be used for context
 Function returns:
-NumPy array containing float numbers corresponding to the text.
+chromadb database
 '''
 
 
