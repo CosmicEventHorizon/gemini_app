@@ -1,19 +1,40 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Medical LLM Query</title>
 </head>
+
 <body>
     <h1>Medical Question Form</h1>
     <form action="/submit" method="post">
         <textarea name="prompt" rows="5" cols="50" required></textarea><br>
         <input type="submit" value="Submit">
+        <input type="button" value="Reload Database" id="reload">
     </form>
 
+    <script>
+        document.getElementById('reload').addEventListener('click', function () {
+            fetch('/reload', { method: 'POST' })
+                .then(response => {
+                    if (response.ok) {
+                        alert('Database reloaded!');
+                    } else {
+                        alert('Failed to reload database');
+                    }
+                })
+                .catch(error => {
+                    alert('Network error!');
+                });
+        });
+    </script>
+
+    <br>
     {% if response %}
     <div class="response">
         {{ response|safe }}
     </div>
     {% endif %}
 </body>
+
 </html>

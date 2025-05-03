@@ -42,7 +42,8 @@ def ingest_pdf(pdf_path, collection_name="products"):
     chunks = chunk_text(full_text)
     embeddings = [get_embedding(c) for c in chunks]
 
-    client = chromadb.Client()
+    #saves to ./data/chroma_db/
+    client = chromadb.PersistentClient(path="data/chroma_db")  
     #if collection exists delete it and then create a new collection
     if collection_name in [c.name for c in client.list_collections()]:
         client.delete_collection(name=collection_name)

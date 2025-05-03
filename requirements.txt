@@ -4,3 +4,4 @@ fitz
 chromadb
 sentence_transformers
 PyMuPDF
+google-genai

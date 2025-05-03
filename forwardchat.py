@@ -3,11 +3,11 @@ from utils.gemini import call_gemini
 from retriever.search import get_relevant_chunks
 from retriever.ingest import ingest_pdf
 
+
 app = Flask(__name__)
 
 @app.route('/')
 def index():
-    ingest_pdf("product.pdf")
     return render_template('index.html')
 
 @app.route('/submit', methods=['POST'])
@@ -32,6 +32,12 @@ def submit():
     print(final_prompt)
     response = call_gemini(final_prompt)
     return render_template('index.html', response=response)
+
+@app.route('/reload', methods=['POST'])
+def reload():
+    ingest_pdf("product.pdf")
+    return '', 204 
+
 
 if __name__ == "__main__":
     app.run(debug=True)
