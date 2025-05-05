@@ -65,6 +65,10 @@ def reload():
     ingest_pdf("context/product.pdf")
     return '', 204 
 
+@app.before_request
+def force_https_scheme():
+    if request.headers.get('X-Forwarded-Proto') == 'https':
+        request.environ['wsgi.url_scheme'] = 'https'
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=8000)
