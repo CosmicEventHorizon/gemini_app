@@ -9,6 +9,7 @@ chromadb database
 
 
 import fitz 
+import json
 import chromadb
 from retriever.embedding_model import get_embedding
 
@@ -52,3 +53,31 @@ def ingest_pdf(pdf_path, collection_name="products"):
     #generate ids from 0 to len(chunks) and store it in chromadb where we have ids=doc-{i}, documents=chunk, embeddings=embeddings elements
     ids = [f"doc-{i}" for i in range(len(chunks))]    
     collection.add(documents=chunks, embeddings=embeddings, ids=ids)
+
+'''
+Given a json file, 
+'''
+def toc_collection():
+    f = open('context/toc.json')  
+    data = json.load(f)  
+    f.close()  
+
+    #generate embeddings only for titles
+    titles = [entry["title"] for entry in data]
+    embeddings = [get_embedding(title) for title in titles]
+    
+    #store in ChromaDB with metadata
+    client = chromadb.PersistentClient(path="data/chroma_db")
+    collection_name="toc"
+    if collection_name in [c.name for c in client.list_collections()]:
+        client.delete_collection(name=collection_name)
+    collection = client.create_collection(name=collection_name)
+
+    #include page ranges as metadata
+    collection.add(
+        documents=titles,
+        embeddings=embeddings,
+        ids=[f"toc-{i}" for i in range(len(titles))],
+        metadatas=[{"start_page": entry["start_page"], "end_page": entry["end_page"]} for entry in data]
+    )
+    return collection

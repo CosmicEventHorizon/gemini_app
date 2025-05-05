@@ -1,0 +1,79 @@
+[
+    { "title": "Ancestry Analysis Report Summary - Overview of genetic lineage and ancestral origins based on DNA analysis.", "start_page": 1, "end_page": 7 },
+    { "title": "My Ancestry - Detailed breakdown of personal ancestral background by region or population group.", "start_page": 8, "end_page": 15 },
+  
+    { "title": "Sport Genes Report Summary - Summary of genetic traits related to athletic performance, stamina, and physical endurance.", "start_page": 16, "end_page": 18 },
+    { "title": "Basal Metabolism (Sport Genes) - Genetic factors influencing resting metabolic rate and energy consumption.", "start_page": 19, "end_page": 21 },
+    { "title": "Physical Characteristics (Sport Genes) - Genes associated with muscle composition, flexibility, and body structure.", "start_page": 22, "end_page": 24 },
+    { "title": "Weight Management (Sport Genes) - Genetic predispositions affecting weight gain, fat metabolism, and obesity risk.", "start_page": 25, "end_page": 27 },
+    { "title": "Exercise Reaction (Sport Genes) - How your body responds to different types of physical activity based on your genes.", "start_page": 28, "end_page": 30 },
+    { "title": "Sport Protection (Sport Genes) - Genetic insights into injury susceptibility and recovery from sports activities.", "start_page": 31, "end_page": 33 },
+  
+    { "title": "Nutrient Metabolism Report Summary - Summary of how your genes impact nutrient absorption and metabolism.", "start_page": 67, "end_page": 70 },
+    { "title": "Metabolic Capacity (Nutrient Metabolism) - Evaluation of genetic efficiency in converting food into energy.", "start_page": 71, "end_page": 74 },
+    { "title": "Mineral Requirements (Nutrient Metabolism) - Genetic tendencies that determine how your body uses essential minerals.", "start_page": 75, "end_page": 78 },
+    { "title": "Vitamin Requirements (Nutrient Metabolism) - Genetic influences on vitamin absorption and requirements.", "start_page": 79, "end_page": 82 },
+  
+    { "title": "Health Risk Report Summary - Overview of disease risks categorized by body systems based on genetic indicators.", "start_page": 133, "end_page": 137 },
+    { "title": "Nervous System Health Risk - Genetic risks for neurological conditions such as dementia, Parkinson's, or cognitive decline.", "start_page": 138, "end_page": 142 },
+    { "title": "Reproductive System Health Risk - Risk factors for fertility, hormonal issues, and reproductive health.", "start_page": 143, "end_page": 147 },
+    { "title": "Digestive System Health Risk - Genetic predisposition to conditions like IBS, Crohn’s, or acid reflux.", "start_page": 148, "end_page": 152 },
+    { "title": "Respiratory System Health Risk - Risks of asthma, COPD, and other breathing-related genetic conditions.", "start_page": 153, "end_page": 157 },
+    { "title": "Circulatory System Health Risk - Genetic factors influencing heart disease, blood pressure, and vascular conditions.", "start_page": 158, "end_page": 162 },
+    { "title": "Urinary System Health Risk - Predispositions to kidney and bladder-related health issues.", "start_page": 163, "end_page": 167 },
+    { "title": "Motor System Health Risk - Genetic markers for muscle control and movement disorders.", "start_page": 168, "end_page": 172 },
+    { "title": "Endocrine System Health Risk - Genetic insights into hormone regulation and endocrine disorders.", "start_page": 173, "end_page": 177 },
+    { "title": "Other Health Risks - Catch-all for miscellaneous health risks not covered in other systems.", "start_page": 178, "end_page": 182 },
+  
+    { "title": "Psychological Traits Report Summary - Summary of mental and emotional characteristics influenced by genes.", "start_page": 655, "end_page": 658 },
+    { "title": "Personality Characteristics (Psychological Traits) - Genetic tendencies related to personality traits such as openness or neuroticism.", "start_page": 659, "end_page": 663 },
+    { "title": "Decision-Making Tendency (Psychological Traits) - How genetics may influence impulsivity or deliberation in choices.", "start_page": 664, "end_page": 668 },
+    { "title": "Cognitive Ability (Psychological Traits) - Genetic predictors of intelligence, memory, and learning capacity.", "start_page": 669, "end_page": 673 },
+    { "title": "Positive Emotions (Psychological Traits) - Genetic influence on happiness, optimism, and emotional resilience.", "start_page": 674, "end_page": 678 },
+    { "title": "Interpersonal Psychology (Psychological Traits) - Genes affecting social behavior, empathy, and relationship tendencies.", "start_page": 679, "end_page": 683 },
+  
+    { "title": "Life Guidance Report Summary - General health and lifestyle advice based on genetic findings.", "start_page": 745, "end_page": 747 },
+    { "title": "Effect of Smoking (Life Guidance) - How your genes affect vulnerability to smoking-related health issues.", "start_page": 748, "end_page": 751 },
+    { "title": "Effect of Drinking (Life Guidance) - Genetic predispositions to alcohol sensitivity or addiction risk.", "start_page": 752, "end_page": 755 },
+    { "title": "Effect of Physical Activity (Life Guidance) - Genetic response to exercise and fitness routines.", "start_page": 756, "end_page": 759 },
+  
+    { "title": "Skin Characteristics Report Summary - Overview of genetic influences on skin aging, hydration, and pigmentation.", "start_page": 832, "end_page": 835 },
+  
+    { "title": "Genetic Characteristics Report Summary - Summary of general genetic attributes and individual genetic makeup.", "start_page": 885, "end_page": 888 },
+  
+    { "title": "Genetic Disease Report Summary - Overview of inherited disease risks and gene-related medical conditions.", "start_page": 921, "end_page": 924 },
+    { "title": "Neurological Disease (Genetic) - Genetic risk factors for brain and nervous system disorders such as dementia and Alzheimer's.", "start_page": 925, "end_page": 928 },
+    { "title": "Metabolic Disease (Genetic) - Predispositions to conditions like diabetes and metabolic syndrome.", "start_page": 929, "end_page": 932 },
+    { "title": "Gastrointestinal Disease (Genetic) - Genetic risks for gut and digestive disorders.", "start_page": 933, "end_page": 936 },
+    { "title": "Blood Disease (Genetic) - Inherited blood disorders such as anemia or clotting issues.", "start_page": 937, "end_page": 940 },
+    { "title": "Immune Disease (Genetic) - Risk of autoimmune or immune-compromised conditions based on genetic profile.", "start_page": 941, "end_page": 944 },
+    { "title": "Hepatobiliary Disease (Genetic) - Genetic factors influencing liver and gallbladder health.", "start_page": 945, "end_page": 948 },
+    { "title": "Cardiovascular Disease (Genetic) - Inherited risks for heart-related diseases.", "start_page": 949, "end_page": 952 },
+  
+    { "title": "Drug Guideline Report Summary - Overview of how genes affect medication response.", "start_page": 1837, "end_page": 1840 },
+    { "title": "Cardiovascular Drug Guideline - How genetic makeup alters response to heart medications.", "start_page": 1841, "end_page": 1844 },
+    { "title": "Hypertension Drug Guideline - Personalized blood pressure treatment based on genes.", "start_page": 1845, "end_page": 1848 },
+    { "title": "Diabetes Drug Guideline - Genetic impact on diabetes medication efficacy and safety.", "start_page": 1849, "end_page": 1852 },
+    { "title": "Anti-Infective Drug Guideline - Genetic variation affecting antibiotics and antiviral responses.", "start_page": 1853, "end_page": 1856 },
+    { "title": "Digestive System Drug Guideline - Drug sensitivity and recommendations for digestive disorders.", "start_page": 1857, "end_page": 1860 },
+    { "title": "Gout Drug Guideline - Personalized drug advice for gout management.", "start_page": 1861, "end_page": 1864 },
+    { "title": "Musculoskeletal Drug Guideline - Genetic influence on drug efficacy for joint or muscle conditions.", "start_page": 1865, "end_page": 1868 },
+    { "title": "Endocrine Drug Guideline - Hormone therapy considerations based on genetics.", "start_page": 1869, "end_page": 1872 },
+    { "title": "Respiratory System Drug Guideline - Genetic responsiveness to asthma and respiratory drugs.", "start_page": 1873, "end_page": 1876 },
+    { "title": "Nervous System Drug Guideline - Drug guidelines for neurological or psychiatric treatments based on genes.", "start_page": 1877, "end_page": 1880 },
+    { "title": "Urogenital Drug Guideline - Genetic compatibility with medications affecting urinary and reproductive systems.", "start_page": 1881, "end_page": 1884 },
+    { "title": "Anti-tumor Drug Guideline - Cancer drug responses based on genetic variations.", "start_page": 1885, "end_page": 1888 },
+    { "title": "Immune System Drug Guideline - How genetics influence immunosuppressant or immune-boosting treatments.", "start_page": 1889, "end_page": 1892 },
+    { "title": "Sundry Drug Guideline - Other miscellaneous drug responses affected by genetics.", "start_page": 1893, "end_page": 1896 },
+  
+    { "title": "Virus Infection Risk - Genetic susceptibility to viral infections and immune response.", "start_page": 2443, "end_page": 2445 },
+    { "title": "Bacterium Infection Risk - Risk of bacterial infections based on genetic markers.", "start_page": 2446, "end_page": 2448 },
+    { "title": "Fungus Infection Risk - Genetic predisposition to fungal infections.", "start_page": 2449, "end_page": 2451 },
+    { "title": "Parasite Infection Risk - Genetic susceptibility to parasitic infections.", "start_page": 2452, "end_page": 2454 },
+    { "title": "Other Infection Risk - General infection risks not categorized under specific pathogen types.", "start_page": 2455, "end_page": 2457 },
+  
+    { "title": "Food Exposure Risk - Allergies and intolerances to certain foods based on genetics.", "start_page": 2501, "end_page": 2503 },
+    { "title": "Occupational Environment Exposure Risk - Risk of adverse reactions to environmental exposures at work.", "start_page": 2504, "end_page": 2506 },
+    { "title": "Other Exposure Risk - Genetic vulnerability to miscellaneous environmental factors.", "start_page": 2507, "end_page": 2509 }
+  ]
+  

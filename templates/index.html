@@ -6,12 +6,28 @@
 </head>
 
 <body>
-    <h1>Medical Question Form</h1>
-    <form action="/submit" method="post">
+    <h1>Product Assistant Bot</h1>
+    <form action="/product" method="post">
         <textarea name="prompt" rows="5" cols="50" required></textarea><br>
         <input type="submit" value="Submit">
-        <input type="button" value="Reload Database" id="reload">
     </form>
+    {% if product_response %}
+    <pre class="product_response">{{ product_response|safe }}</pre>
+    {% endif %}
+
+
+    <h1>Report Assistant Bot</h1>
+    <form action="/report" method="post">
+        <textarea name="prompt" rows="5" cols="50" required></textarea><br>
+        <input type="submit" value="Submit">
+    </form>
+    {% if report_response %}
+    <pre class="report_response">{{ report_response|safe }}</pre>
+    {% endif %}
+    <br>
+    <br>
+    <p>Reload product and table of contents database</p>
+    <input type="button" value="Reload Database" id="reload">
 
     <script>
         document.getElementById('reload').addEventListener('click', function () {
@@ -30,11 +46,7 @@
     </script>
 
     <br>
-    {% if response %}
-    <div class="response">
-        {{ response|safe }}
-    </div>
-    {% endif %}
+    
 </body>
 
 </html>

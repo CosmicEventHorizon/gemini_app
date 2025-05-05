@@ -20,3 +20,15 @@ def get_relevant_chunks(query, k=3, collection_name="products"):
         return "\n".join(results['documents'][0])
     except:
         return None
+
+
+def get_relevant_subsections(query, k=5):
+    collection_name = "toc"
+    client = chromadb.PersistentClient(path="data/chroma_db") 
+    try:
+        collection = client.get_collection(name=collection_name)
+        query_embedding = get_embedding(query)
+        results = collection.query(query_embeddings=[query_embedding], n_results=k)
+        return results
+    except:
+        return None

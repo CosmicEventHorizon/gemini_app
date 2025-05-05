@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request
 from utils.gemini import call_gemini
-from retriever.search import get_relevant_chunks
-from retriever.ingest import ingest_pdf
+from retriever.search import *
+from retriever.ingest import *
 
 
 app = Flask(__name__)
@@ -10,14 +10,14 @@ app = Flask(__name__)
 def index():
     return render_template('index.html')
 
-@app.route('/submit', methods=['POST'])
-def submit():
+@app.route('/product', methods=['POST'])
+def product():
     prompt = request.form['prompt']
     context = get_relevant_chunks(prompt, k=3)
     error = "Please reload the database"
 
     if context == None:
-        return render_template('index.html', response=error)
+        return render_template('index.html', product_response=error)
     
     final_prompt = f"""
     You are a helpful assistant for the company Ebovir.
@@ -35,11 +35,34 @@ def submit():
     
     print(final_prompt)
     response = call_gemini(final_prompt)
-    return render_template('index.html', response=response)
+    return render_template('index.html', product_response=response)
+
+@app.route('/report', methods=['POST'])
+def report():
+    prompt = request.form['prompt']
+    relevant_subsections = get_relevant_subsections(prompt,5)
+    error = "Please reload the database"
+
+    if relevant_subsections == None:
+        return render_template('index.html', report_response=error)
+    
+    print(relevant_subsections)
+    titles = relevant_subsections['documents'][0]
+    page_numbers = relevant_subsections['metadatas'][0]
+
+    relevant_subsections_text = '---Sections---\n'
+    for i in range(len(titles)):
+        relevant_subsections_text += f"""
+{titles[i]}\n
+Pages {page_numbers[i]['start_page']} to {page_numbers[i]['end_page']}
+"""
+        
+    return render_template('index.html', report_response=relevant_subsections_text)
 
 @app.route('/reload', methods=['POST'])
 def reload():
-    ingest_pdf("product.pdf")
+    toc_collection()
+    ingest_pdf("context/product.pdf")
     return '', 204 
 
 
