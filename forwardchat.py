@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request
-from utils.gemini import call_gemini
+from utils.model import call_openai
 from retriever.search import *
 from retriever.ingest import *
 
@@ -34,7 +34,7 @@ def product():
     """
     
     print(final_prompt)
-    response = call_gemini(final_prompt)
+    response = call_openai(final_prompt)
     return render_template('index.html', product_response=response)
 
 @app.route('/report', methods=['POST'])

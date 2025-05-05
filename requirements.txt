@@ -1,5 +1,5 @@
 Flask
-google-generativeai
+openai
 chromadb
 PyMuPDF
 google-genai

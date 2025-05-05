@@ -6,16 +6,18 @@ Function returns:
 string - response prediction or error message
 '''
 import os
-import google.generativeai as genai
+from openai import OpenAI
 
 api_key = os.getenv("API_KEY")
-genai.configure(api_key=api_key)
-model = genai.GenerativeModel('gemini-2.5-flash-preview-04-17')
+client = OpenAI(api_key=api_key)
 
-def call_gemini(prompt: str) -> str:
+def call_openai(prompt: str):
     try:
-        response = model.generate_content(prompt)
-        return response.text
+        response = client.responses.create(
+            model="gpt-4.1-nano",
+            input=prompt
+        )
+        return response.output_text
     except Exception as e:
-        print("Gemini error:", e)
+        print("OpenAI error:", e)
         return "Sorry, I couldn't generate a response."
