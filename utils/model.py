@@ -15,7 +15,9 @@ def call_openai(prompt: str):
     try:
         response = client.responses.create(
             model="gpt-4.1-nano",
-            input=prompt
+            input=prompt,
+            temperature=0.8,
+            top_p=0.9,
         )
         return response.output_text
     except Exception as e:

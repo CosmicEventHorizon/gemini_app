@@ -2,4 +2,5 @@ Flask
 openai
 chromadb
 PyMuPDF
-google-genai
+sentence_transformers
+flask_session

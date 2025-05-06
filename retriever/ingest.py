@@ -1,15 +1,14 @@
 '''
 The following code splits a pdf file into max_tokens chunks then maps the chunks to embeddings and stores
-them in a chromadb database under data/chroma_db (these functions should run once to generate the database)
+them in a chromadb database in memory (these functions should run once to generate the database)
 Call parameters:
-pdf file to be used for context
+text - text to convert to embeddings
 Function returns:
-chromadb database
+NumPy array containing float numbers corresponding to the text.
 '''
 
 
 import fitz 
-import json
 import chromadb
 from retriever.embedding_model import get_embedding
 
@@ -28,7 +27,7 @@ def chunk_text(text, max_tokens=500, overlap=50):
 '''
 Given a pdf file, 
 '''
-def ingest_pdf(pdf_path, collection_name="products"):
+def ingest_pdf(pdf_path, collection_name):
     #Use fitz to open the pdf file, read each page and 
     #concatenate all text into a string separated by newline
     doc = fitz.open(pdf_path)
@@ -43,7 +42,6 @@ def ingest_pdf(pdf_path, collection_name="products"):
     chunks = chunk_text(full_text)
     embeddings = [get_embedding(c) for c in chunks]
 
-    #saves to ./data/chroma_db/
     client = chromadb.PersistentClient(path="data/chroma_db")  
     #if collection exists delete it and then create a new collection
     if collection_name in [c.name for c in client.list_collections()]:
@@ -54,30 +52,6 @@ def ingest_pdf(pdf_path, collection_name="products"):
     ids = [f"doc-{i}" for i in range(len(chunks))]    
     collection.add(documents=chunks, embeddings=embeddings, ids=ids)
 
-'''
-Given a json file, 
-'''
-def toc_collection():
-    f = open('context/toc.json')  
-    data = json.load(f)  
-    f.close()  
 
-    #generate embeddings only for titles
-    titles = [entry["title"] for entry in data]
-    embeddings = [get_embedding(title) for title in titles]
-    
-    #store in ChromaDB with metadata
-    client = chromadb.PersistentClient(path="data/chroma_db")
-    collection_name="toc"
-    if collection_name in [c.name for c in client.list_collections()]:
-        client.delete_collection(name=collection_name)
-    collection = client.create_collection(name=collection_name)
-
-    #include page ranges as metadata
-    collection.add(
-        documents=titles,
-        embeddings=embeddings,
-        ids=[f"toc-{i}" for i in range(len(titles))],
-        metadatas=[{"start_page": entry["start_page"], "end_page": entry["end_page"]} for entry in data]
-    )
-    return collection
+def get_report_db_name(user_id: int) -> str:
+    return f"report_user_{user_id}"
