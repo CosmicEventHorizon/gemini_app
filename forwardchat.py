@@ -19,6 +19,7 @@ Session(app)
 
 @app.route('/')
 def index():
+    session.clear()
     user_id = 123456789
     if 'user_id' not in session:
         session['user_id'] = user_id
