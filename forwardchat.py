@@ -47,7 +47,7 @@ def product():
     if relevant_context == None: 
         return jsonify({"response":"Please reload the database"}) 
     
-    if 'conversation' not in session or 'context' not in session:
+    if 'conversation_product' not in session or 'context_product' not in session:
         session['conversation_product'] = []
         session['context_product'] = []
     
