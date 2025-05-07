@@ -1,10 +1,3 @@
-'''
-The following code uses Google Gemini API for text completion. 
-Call parameters:
-prompt - text for completion
-Function returns:
-string - response prediction or error message
-'''
 import os
 from openai import OpenAI
 from config import OPENAI_API_KEY

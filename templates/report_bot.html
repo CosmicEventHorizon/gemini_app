@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Ebogenes - GeneReport Assistant</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+  {% from 'partials/header.html' import header %}
+  {{ header("GeneReport Assistant") }}
+  <div id="chat-container">
+  </div>
+  <form id="chat-form">
+    <input id="chat-input" type="text" placeholder="How can I help you today?" autocomplete="off" required />
+    <button id="chat-submit" type="submit">Send</button>
+  </form>
+
+  <script src="{{ url_for('static', filename='js/report_bot.js') }}"></script>
+</body>
+
+</html>

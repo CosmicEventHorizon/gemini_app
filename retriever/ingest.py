@@ -1,13 +1,3 @@
-'''
-The following code splits a pdf file into max_tokens chunks then maps the chunks to embeddings and stores
-them in a chromadb database in memory (these functions should run once to generate the database)
-Call parameters:
-text - text to convert to embeddings
-Function returns:
-NumPy array containing float numbers corresponding to the text.
-'''
-
-
 import fitz 
 import chromadb
 from retriever.embedding_model import get_embedding
