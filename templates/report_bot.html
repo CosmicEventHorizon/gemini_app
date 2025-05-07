@@ -5,6 +5,7 @@
   <meta charset="UTF-8" />
   <title>Ebogenes - GeneReport Assistant</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 
 <body>
@@ -12,6 +13,7 @@
   {{ header("GeneReport Assistant") }}
   <div id="chat-container">
   </div>
+  <p id="load-notification">Database loading...</p>
   <form id="chat-form">
     <input id="chat-input" type="text" placeholder="How can I help you today?" autocomplete="off" required />
     <button id="chat-submit" type="submit">Send</button>

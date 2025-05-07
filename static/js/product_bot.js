@@ -3,6 +3,8 @@ document.addEventListener("DOMContentLoaded", () => {
 	const form = document.getElementById("chat-form");
 	const input = document.getElementById("chat-input");
 	const container = document.getElementById("chat-container");
+	const load_notification = document.getElementById("load-notification")
+
 
 	form.addEventListener("submit", async (e) => {
 		e.preventDefault();
@@ -31,10 +33,26 @@ document.addEventListener("DOMContentLoaded", () => {
 	});
 
 	function appendMessage(sender, text) {
-		const div = document.createElement("pre");
+		const div = document.createElement("div");
 		div.className = `message ${sender}`;
-		div.textContent = text;
+		const formattedHtml = marked.parse(text);
+		div.innerHTML = formattedHtml;
 		container.appendChild(div);
 		container.scrollTop = container.scrollHeight;
 	}
+
+	function checkStatus() {
+		fetch('/reload/status')
+			.then(res => res.json())
+			.then(data => {
+				if (data.done) {
+					load_notification.innerText = 'Database Loaded';
+				} else {
+					setTimeout(checkStatus, 2000);  
+				}
+			});
+	}
+	
+	checkStatus(); // start polling
+
 });

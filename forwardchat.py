@@ -3,6 +3,7 @@ from utils.model import call_openai
 from flask_session import Session
 from retriever.search import *
 from retriever.ingest import *
+from threading import Thread
 import os
 
 
@@ -28,17 +29,13 @@ def index():
 
 @app.route('/genereportbot')
 def genereportbot():
-    user_id = session.get('user_id', None)
-    report_name = get_report_db_name(user_id)
-    relevant_context = get_relevant_chunks("test",report_name,2)
-    if relevant_context == None:
+    if not db_exists():
         reload()
     return render_template('report_bot.html')
 
 @app.route('/productbot')
 def productbot():
-    context = get_relevant_chunks("test", "product_collection", 2)
-    if context == None:
+    if not db_exists():
         reload()
     return render_template('product_bot.html')
 
@@ -155,9 +152,13 @@ def reload():
     user_id = session.get('user_id', None)
     if user_id is None:
         return '',404
-    report_name = get_report_db_name(user_id)
-    ingest_pdf("context/report.pdf", report_name)
-    ingest_pdf("context/product.pdf", "product_collection")
+
+    def background_task(user_id):
+        report_name = get_report_db_name(user_id)
+        ingest_pdf("context/report.pdf", report_name)
+        ingest_pdf("context/product.pdf", "product_collection")
+
+    Thread(target=background_task, args=(user_id,)).start()
     return '', 204 
 
 @app.route('/generate_user', methods=['POST'])
@@ -170,6 +171,21 @@ def generate_user():
 
 def clear_terminal():
     os.system('cls' if os.name == 'nt' else 'clear')
+
+#polling endpoint
+@app.route('/reload/status')
+def reload_status():
+    if db_exists():  
+        return jsonify({'done': True})
+    else:
+        return jsonify({'done': False})
+
+def db_exists():
+    context = get_relevant_chunks("test","product_collection",1)
+    if context == None: 
+        return False
+    else:
+        return True
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=8000)
