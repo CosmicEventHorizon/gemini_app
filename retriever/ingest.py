@@ -30,7 +30,13 @@ def ingest_pdf(pdf_path, collection_name):
     #split the full_text to chunks
     #for each chunk, convert it into embeddings and store it in an embeddings array
     chunks = chunk_text(full_text)
-    embeddings = [get_embedding(c) for c in chunks]
+    n_chunks = len(chunks)
+    i=1
+    embeddings=[]
+    for c in chunks:
+        print(f"Chucnk: {i} of {n_chunks}")
+        embeddings.append(get_embedding(c))
+        i=i+1
 
     client = chromadb.PersistentClient(path="data/chroma_db")  
     #if collection exists delete it and then create a new collection

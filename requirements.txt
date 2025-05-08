@@ -3,4 +3,3 @@ Flask-Session
 openai
 chromadb
 PyMuPDF
-sentence_transformers
