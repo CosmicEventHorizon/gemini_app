@@ -1,45 +1,99 @@
+import json
+import os
 from flask import jsonify
 from retriever.search import get_relevant_chunks
 from utils.model import call_openai
 from utils.console import clear_terminal
-import chromadb
 from uuid import uuid4
+from datetime import datetime
 
-chroma_client = chromadb.PersistentClient(path="data/chroma_db")
+CONVERSATION_DIR = "data/conversations"
+os.makedirs(CONVERSATION_DIR, exist_ok=True)
+
+def get_conversation_file(username):
+    return os.path.join(CONVERSATION_DIR, f"user_{username}_history.json")
+
+def load_conversation(username):
+    file_path = get_conversation_file(username)
+    if os.path.exists(file_path):
+        with open(file_path, 'r') as f:
+            return json.load(f)
+    return {"conversation": [], "context": []}
+
+def save_conversation(username, data):
+    file_path = get_conversation_file(username)
+    with open(file_path, 'w') as f:
+        json.dump(data, f, indent=2)
+
+def add_message(username, message):
+    data = load_conversation(username)
+    data["conversation"].append({
+        "message": message,
+    })
+    save_conversation(username, data)
+
+def add_context(username, context):
+    data = load_conversation(username)
+    data["context"].append({
+        "context": context,
+    })
+    save_conversation(username, data)
+
+def query_messages(username, query_text=None, n_results=10, metadata_filter=None):
+    data = load_conversation(username)
+    results = {
+        "conversation": [],
+        "context": []
+    }
+    
+    # Reverse to get most recent messages first
+    messages = conversation["messages"][::-1]
+    metadatas = conversation["metadata"][::-1]
+    
+    # Simple filter implementation
+    for msg, meta in zip(messages, metadatas):
+        if metadata_filter and not all(meta["metadata"].get(k) == v for k, v in metadata_filter.items()):
+            continue
+            
+        results["documents"].append(msg["document"])
+        results["metadatas"].append(meta["metadata"])
+        
+        if len(results["documents"]) >= n_results:
+            break
+    
+    return results
 
 def handle_report_chat(prompt, report_name, username):
     try:
-        collection = chroma_client.get_collection(name=f"user_{username}_history")
-    except:
-        collection = chroma_client.create_collection(name=f"user_{username}_history")
-    
-    relevant_context = get_relevant_chunks(prompt, report_name, 15)
-    if relevant_context is None: 
-        return jsonify({"response": "Please reload the database"}) 
+        relevant_context = get_relevant_chunks(prompt, report_name, 15)
+        if relevant_context is None: 
+            return jsonify({"response": "Please reload the database"}) 
 
-    user_prompt = "User: " + prompt
-    collection.add(
-        documents=[user_prompt],
-        metadatas=[{"type": "conversation", "context": relevant_context}],
-        ids=[str(uuid4())]
-    )
-    
-    conversation_history = collection.query(
-        query_texts=[prompt],
-        n_results=10,
-        where={"type": "conversation"}
-    )
-    
-    context_history = collection.query(
-        query_texts=[relevant_context],
-        n_results=3,
-        where={"type": "conversation"}
-    )
-    
-    conversation = '\n\n'.join([doc for doc in conversation_history['documents'][0]])
-    context = '\n'.join([meta['context'] for meta in context_history['metadatas'][0]])
-    
-    final_prompt = f"""
+        user_prompt = "User: " + prompt
+        
+        add_message(
+            username=username,
+            message=user_prompt,
+        )
+        
+        conversation_history = query_messages(
+            username=username,
+            query_text=prompt,
+            n_results=10,
+            metadata_filter={"type": "conversation"}
+        )
+        
+        context_history = query_messages(
+            username=username,
+            query_text=relevant_context,
+            n_results=3,
+            metadata_filter={"type": "conversation"}
+        )
+        
+        conversation = '\n\n'.join([doc for doc in conversation_history['documents']])
+        context = '\n'.join([meta['context'] for meta in context_history['metadatas'] if meta.get('context')])
+        
+        final_prompt = f"""
 You are a helpful assistant for the company Ebogenes. 
 Your role is to assist users by answering questions based on their Ebogenes genetic report. 
 
@@ -65,24 +119,24 @@ Report Context:
 Conversation:
 {conversation}
 """
-    
-    clear_terminal()
-    print(final_prompt)
-    response = call_openai(final_prompt)
-    
-    assistant_response = "Assistant: " + response
-    collection.add(
-        documents=[assistant_response],
-        metadatas=[{"type": "conversation", "context": ""}],
-        ids=[str(uuid4())]
-    )
-    
-    return jsonify({"response": response})
-
+        
+        response = call_openai(final_prompt)
+        
+        assistant_response = "Assistant: " + response
+        add_message(
+            username=username,
+            document=assistant_response,
+            metadata={"type": "conversation", "context": ""}
+        )
+        
+        return jsonify({"response": response})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 def delete_history(username):
-  history_name = f"user_{username}_history"
-  if history_name in [c.name for c in chroma_client.list_collections()]:
-    chroma_client.delete_collection(history_name)
-
-  
+    """Delete conversation history for a user"""
+    file_path = get_conversation_file(username)
+    if os.path.exists(file_path):
+        os.remove(file_path)
+        return True
+    return False
