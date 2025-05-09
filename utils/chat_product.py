@@ -1,25 +1,75 @@
-from flask import session, jsonify
+import json
+import os
+from flask import jsonify
 from retriever.search import get_relevant_chunks
-from utils.openai_utils import call_openai  
-from utils.console import clear_terminal  
+from utils.model import call_openai
+from utils.console import clear_terminal
 
-def handle_product_chat(prompt):
-    relevant_context = get_relevant_chunks(prompt, "product_collection", 5)
-    if relevant_context is None:
-        return jsonify({"response": "Please reload the database"})
+CONVERSATION_DIR = "data/conversations"
+os.makedirs(CONVERSATION_DIR, exist_ok=True)
 
-    if 'conversation_product' not in session:
-        session['conversation_product'] = []
-    if 'context_product' not in session:
-        session['context_product'] = []
+def get_conversation_file(guest_id):
+    return os.path.join(CONVERSATION_DIR, f"user_{guest_id}_product_history.json")
+
+def load_conversation(guest_id):
+    file_path = get_conversation_file(guest_id)
+    if os.path.exists(file_path):
+        with open(file_path, 'r') as f:
+            return json.load(f)
+    return {"conversation": [], "context": []}
+
+def save_conversation(guest_id, data):
+    file_path = get_conversation_file(guest_id)
+    with open(file_path, 'w') as f:
+        json.dump(data, f, indent=2)
+
+def add_message(guest_id, message):
+    data = load_conversation(guest_id)
+    print(data)
+    data["conversation"].append({
+        "message": message,
+    })
+    save_conversation(guest_id, data)
+
+def add_context(guest_id, context):
+    data = load_conversation(guest_id)
+    data["context"].append({
+        "context": context,
+    })
+    save_conversation(guest_id, data)
+
+def query_messages(guest_id):
+    data = load_conversation(guest_id)
+    result = {
+        "conversation": [],
+        "context": []
+    }
+    result['conversation'] = '\n\n'.join(m['message'] for m in data['conversation'][-10:])
+    result['context'] = '\n'.join(c['context'] for c in data['context'][-3:])
+    return result
+
+def handle_product_chat(prompt, guest_id):
+    relevant_context = get_relevant_chunks(prompt, "product", 15)
+    if relevant_context is None: 
+        return jsonify({"response": "Please reload the database"}) 
 
     user_prompt = "User: " + prompt
-    session['conversation_product'].append(user_prompt)
-    session['context_product'].append(relevant_context)
+    
+    add_message(
+        guest_id=guest_id,
+        message=user_prompt,
+    )
 
-    conversation = '\n\n'.join(session['conversation_product'][-10:])
-    context = '\n'.join(session['context_product'][-3:])
+    add_context(
+        guest_id=guest_id,
+        context=relevant_context
+    )
 
+    data = query_messages(guest_id)
+            
+    conversation = data['conversation']
+    context = data['context']
+    
     final_prompt = f"""
 You are a helpful assistant for the company Ebogenes.
 Your role is to assist users by answering questions based on the Ebogenes products.
@@ -37,6 +87,7 @@ Overview / Summary
 Include all key product features or points as bullet points
 Stay professional, supportive, and informative
 
+
 Product Context:
 {context}
 
@@ -44,11 +95,21 @@ Conversation:
 {conversation}
 """
 
-    clear_terminal()
-    print(final_prompt)
+    #clear_terminal()
+    #print(final_prompt)
     response = call_openai(final_prompt)
     assistant_response = "Assistant: " + response
-    session['conversation_product'].append(assistant_response)
-    session.modified = True
-
+    add_message(
+        guest_id=guest_id,
+        message=assistant_response,
+    )
+    
     return jsonify({"response": response})
+
+
+def delete_product_history(guest_id):
+    file_path = get_conversation_file(guest_id)
+    if os.path.exists(file_path):
+        os.remove(file_path)
+        return True
+    return False

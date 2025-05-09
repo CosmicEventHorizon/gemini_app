@@ -1,21 +1,31 @@
 from flask import Flask, render_template, request, make_response, jsonify, redirect, url_for
 from utils.auth import hash_password, check_password, add_user, get_user, generate_jwt, get_authorization_info
 from retriever.ingest import ingest_pdf, check_user_report, get_user_report
-from utils.chat_report import handle_report_chat, delete_history
+from utils.chat_report import handle_report_chat, delete_report_history
+from utils.chat_product import handle_product_chat, delete_product_history
+import uuid
 import os
 
 
 app = Flask(__name__)
 
+
 @app.route('/')
 def home():
+    new_guest_id = str(uuid.uuid4())
+    resp = make_response()
+    resp.set_cookie('guest_id', new_guest_id)
+    print("New guest ID set!")
     token = request.cookies.get('jwt_token')
     if token is None or get_authorization_info(token)[0] is False:
-        return redirect(url_for('login'))
-    token = request.cookies.get('jwt_token')
+        resp.headers['Location'] = url_for('login')
+        resp.status_code = 302 #redirect code
+        return resp
     user = get_authorization_info(token)
     username = user[1]
-    return render_template('dashboard.html', userName=username)
+    delete_report_history(username)
+    resp.set_data(render_template('dashboard.html', userName=username))
+    return resp
 
 @app.route('/signup', methods=['GET','POST'])
 def signup_post():
@@ -75,10 +85,12 @@ def addReport():
 @app.route('/product', methods=['GET','POST'])
 def product():
     if request.method == 'GET':
-        return render_template('product_bot.html')
+            return render_template('product_bot.html')
     data = request.get_json()
     prompt = data.get('prompt')
-    return handle_product_chat(prompt)
+    guest_id = request.cookies.get('guest_id')
+    return handle_product_chat(prompt,guest_id)
+
 
 @app.route('/report', methods=['GET','POST'])
 def report():
@@ -90,7 +102,6 @@ def report():
     data = request.get_json()
     prompt = data.get('prompt')
     report_name = data.get('report_name')
-    delete_history(username)
     return handle_report_chat(prompt,report_name,username)
 
 #polling endpoint

@@ -17,10 +17,10 @@
   {% endif %}
   <button id="logout" class="logout">Sign Out</button>
 
-  <p>Please enter a new report ID to add it to your account. The 
+  <p>Please enter a new report ID to add it to your account. The
     report ID should start with <strong>1EBOVIR</strong> followed by digits (e.g., <em>1EBOVIR123456789</em>).</p>
 
-    <div id="add-report-form">
+  <div id="add-report-form">
     <form id="reportForm" class="form-group-solo">
       <input type="text" id="reportInput" name="report_name" placeholder="Enter report ID" required />
       <button type="submit" class="form-submit-solo">Add Report</button>
@@ -33,9 +33,11 @@
       <!-- Reports will be appended here -->
     </div>
   </div>
-
-  <a href="/product" id="productLink"></a>
-  <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+  <div class="product-link">
+    <p>Need help with our products?</p>
+    <a href="/product">A</a>
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+  </div>
 
 </body>
 

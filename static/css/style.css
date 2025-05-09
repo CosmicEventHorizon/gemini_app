@@ -71,25 +71,28 @@ body {
 }
 
 
-#productLink {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 60px;                  
-  height: 60px;
-  font-size: 1.2rem;
-  border: none;
-  border-radius: 50%;           
-  background-color: #007bff;
-  color: white;
-  cursor: pointer;
-  text-decoration: none;
-  text-align: center;
+.product-link {
   position: fixed;              
   bottom: 20px;                
   right: 20px;                 
-  z-index: 1000;               
+}
+
+.product-link a {
+  display: block;
+  margin: 0 auto; 
+  width: 60px;
+  height: 60px;
+  border: none;
+  border-radius: 50%;
+  font-size: xx-large;
+  background-color: #007bff;
+  color: white;
+  cursor: pointer;
+  z-index: 1000;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  line-height: 60px; 
+  text-decoration: none;
 }
 
 
