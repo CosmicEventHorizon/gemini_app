@@ -11,6 +11,14 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    const reportForm = document.getElementById('reportForm');
+    if (reportForm) {
+        reportForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            submitReport();
+        });
+    }
+
     function reloadStatus() {
         const container = document.getElementById("reports-container");
         fetch('/reload/status')
@@ -65,7 +73,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function submitReport() {
     const formData = new FormData(document.getElementById('reportForm'));
-    const outputElement = document.getElementById('output');
     
     fetch('/add-report', {
         method: 'POST',
@@ -85,10 +92,7 @@ function submitReport() {
             alert(error.message);
         } else {
             alert('An error occurred while submitting the report.');
-        }
-        if (outputElement) {
-            outputElement.textContent = '';
-        }
+        } 
     });
 }
 

@@ -3,6 +3,6 @@ retriever/__pycache__
 __pycache__
 data/chroma_db
 flask_session
-context
+context/
 config.env
 instance/
