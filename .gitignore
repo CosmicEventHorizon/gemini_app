@@ -2,6 +2,7 @@ utils/__pycache__
 retriever/__pycache__
 __pycache__
 data/chroma_db
-config.py
 flask_session
-context/report.pdf
+context
+config.env
+instance/

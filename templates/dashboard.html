@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Dashboard</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+  {% from 'partials/header.html' import header %}
+  {{ header("Dashboard") }}
+
+
+  {% if userName %}
+  <h2>Welcome {{userName}}</h2>
+  {% endif %}
+  <button id="logout" class="logout">Sign Out</button>
+
+  <p>Please enter a new report ID to add it to your account. The 
+    report ID should start with <strong>1EBOVIR</strong> followed by digits (e.g., <em>1EBOVIR123456789</em>).</p>
+
+    <div id="add-report-form">
+    <form id="reportForm" class="form-group-solo">
+      <input type="text" id="reportInput" name="report_name" placeholder="Enter report ID" required />
+      <button type="submit" class="form-submit-solo">Add Report</button>
+    </form>
+  </div>
+  <p id="output"></p>
+  <div>
+    <h2>My Reports</h2>
+    <div id="reports-container">
+      <!-- Reports will be appended here -->
+    </div>
+  </div>
+
+  <a href="/product" id="productLink"></a>
+  <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+
+</body>
+
+</html>

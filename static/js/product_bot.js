@@ -1,5 +1,4 @@
 document.addEventListener("DOMContentLoaded", () => {
-	//product bot
 	const form = document.getElementById("chat-form");
 	const input = document.getElementById("chat-input");
 	const container = document.getElementById("chat-container");
@@ -53,6 +52,6 @@ document.addEventListener("DOMContentLoaded", () => {
 			});
 	}
 	
-	checkStatus(); // start polling
+	checkStatus();
 
 });

@@ -1,29 +1,13 @@
 document.addEventListener("DOMContentLoaded", () => {
-	//reload database
-	/*
-    const reload = document.getElementById("reload-database");
-	reload.addEventListener("click", async (e) => {
-		e.preventDefault();
-		try {
-			const res = await fetch("/reload", {
-				method: "POST",
-			});
-			if (res.status === 204) {
-				alert("Database reloaded");
-			} else {
-				alert("Error reloading database");
-			}
-		} catch (e) {
-                alert("Server error")
-        }
-	});
-    */
-   
-	//report bot
+	const urlParams = new URLSearchParams(window.location.search);
+	const reportText = urlParams.get("text");
+	sessionStorage.setItem("report_text", reportText); 
+
 	const form = document.getElementById("chat-form");
 	const input = document.getElementById("chat-input");
 	const container = document.getElementById("chat-container");
-	const load_notification = document.getElementById("load-notification")
+	const load_notification = document.getElementById("load-notification");
+	const report_name = sessionStorage.getItem("report_text");
 
 	form.addEventListener("submit", async (e) => {
 		e.preventDefault();
@@ -33,17 +17,17 @@ document.addEventListener("DOMContentLoaded", () => {
 		appendMessage("user", prompt);
 		input.value = "";
 
-		appendMessage("bot", "..."); 
+		appendMessage("bot", "...");
 		const loadingElement = container.lastElementChild;
 
 		try {
 			const res = await fetch("/report", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ prompt }),
+				body: JSON.stringify({ prompt, report_name }),
 			});
 			const data = await res.json();
-			loadingElement.remove(); 
+			loadingElement.remove();
 			appendMessage("bot", data.response || "No response.");
 		} catch (err) {
 			loadingElement.remove();
@@ -60,17 +44,5 @@ document.addEventListener("DOMContentLoaded", () => {
 		container.scrollTop = container.scrollHeight;
 	}
 
-	function checkStatus() {
-		fetch('/reload/status')
-			.then(res => res.json())
-			.then(data => {
-				if (data.done) {
-					load_notification.innerText = 'Database Loaded';
-				} else {
-					setTimeout(checkStatus, 2000);  
-				}
-			});
-	}
-	
-	checkStatus(); // start polling
+	load_notification.innerText = report_name;
 });

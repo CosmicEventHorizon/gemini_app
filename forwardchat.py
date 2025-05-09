@@ -1,191 +1,114 @@
-from flask import Flask, session, render_template, request, jsonify
-from utils.model import call_openai
-from flask_session import Session
-from retriever.search import *
-from retriever.ingest import *
-from threading import Thread
+from flask import Flask, render_template, request, make_response, jsonify, redirect, url_for
+from utils.auth import hash_password, check_password, add_user, get_user, generate_jwt, get_authorization_info
+from retriever.ingest import ingest_pdf, check_user_report, get_user_report
+from utils.chat_report import handle_report_chat, delete_history
 import os
 
 
 app = Flask(__name__)
-app.secret_key = os.urandom(24) 
-
-app.config['SESSION_TYPE'] = 'filesystem' 
-app.config['SESSION_PERMANENT'] = False
-app.config['SESSION_USE_SIGNER'] = True
-app.config['SESSION_FILE_DIR'] = './flask_session/' 
-
-Session(app)
-
 
 @app.route('/')
-def index():
-    session.clear()
-    user_id = 123456789
-    if 'user_id' not in session:
-        session['user_id'] = user_id
-    session.modified = True
-    return render_template('home.html')
+def home():
+    token = request.cookies.get('jwt_token')
+    if token is None or get_authorization_info(token)[0] is False:
+        return redirect(url_for('login'))
+    token = request.cookies.get('jwt_token')
+    user = get_authorization_info(token)
+    username = user[1]
+    return render_template('dashboard.html', userName=username)
 
-@app.route('/genereportbot')
-def genereportbot():
-    if not db_exists():
-        reload()
-    return render_template('report_bot.html')
+@app.route('/signup', methods=['GET','POST'])
+def signup_post():
+    if request.method == 'GET':
+            return render_template('signup.html')
+    first_name = request.form['first_name']
+    last_name = request.form['last_name']
+    username = request.form['username']
+    email = request.form['email']
+    password = request.form['password']
+    dob = request.form['dob']
+    
+    if get_user(username):
+        return jsonify({'message': 'User already exists'}), 409
+    
+    hashed_password = hash_password(password)
+    add_user(username, hashed_password, email, first_name, last_name, dob)
+    return jsonify({'message': 'User registered successfully'}), 201
+     
+@app.route('/login', methods=['GET','POST'])
+def login():
+    if request.method == 'GET':
+        return render_template('login.html')
+    username = request.form['username']
+    password = request.form['password']
+    user = get_user(username)
+    if not user or not check_password(user[2], password): 
+        return jsonify({'message': 'Invalid username or password'}), 401
+    token = generate_jwt(username)
+    response = make_response(jsonify({'message': 'Successfully logged in'}), 202)
+    response.set_cookie('jwt_token', token, httponly=True)
+    return response
 
-@app.route('/productbot')
-def productbot():
-    if not db_exists():
-        reload()
-    return render_template('product_bot.html')
+@app.route('/logout', methods=['POST'])
+def logout():
+    response = make_response(jsonify({'message': 'Successfully logged out'}), 202)
+    response.set_cookie('jwt_token', '', expires=0, httponly=True)
+    return response
 
-@app.route('/product', methods=['POST'])
+@app.route('/add-report', methods=['POST'])
+def addReport():
+    token = request.cookies.get('jwt_token')
+    report_name = request.form['report_name']
+    user = get_authorization_info(token)
+    username = user[1]
+    report_name_exists = check_user_report(report_name)
+    print(report_name_exists)
+    if report_name_exists is True:
+            return jsonify({'message':'Report already associated with a user!'}), 409
+    response = ingest_pdf(username, report_name)
+    if response == False:
+        return jsonify({'message':'Report does not exist!'}), 404
+    else:
+        return jsonify({'message':'Report submitted! Please wait a few minutes before it shows under your reports.'}), 202
+
+
+@app.route('/product', methods=['GET','POST'])
 def product():
+    if request.method == 'GET':
+        return render_template('product_bot.html')
     data = request.get_json()
     prompt = data.get('prompt')
-    relevant_context = get_relevant_chunks(prompt,"product_collection",5)
-    if relevant_context == None: 
-        return jsonify({"response":"Please reload the database"}) 
-    
-    if 'conversation_product' not in session or 'context_product' not in session:
-        session['conversation_product'] = []
-        session['context_product'] = []
-    
-    user_prompt = "User: " + prompt
+    return handle_product_chat(prompt)
 
-    session['conversation_product'].append(user_prompt)
-    session['context_product'].append(relevant_context)
-    conversation = '\n\n'.join(session['conversation_product'][-10:])
-    context = '\n'.join(session['context_product'][-3:])
-    final_prompt = f"""
-You are a helpful assistant for the company Ebogenes.
-Your role is to assist users by answering questions based on the Ebogenes products.
-
-Guidelines:
-Stay focused on the product information and content derived directly from the product context.
-Engage naturally—it's okay to greet users or acknowledge their personal comments—as long as the conversation remains centered on the Ebogenes product information.
-If users go completely off-topic, gently guide them back with a message like:
-"I'm here to help you with Ebogenes products. What would you like to explore?"
-Always consider whether the user’s question relates to the product context before responding.
-Provide clear, structured answers with line breaks for readability.
-
-If appropriate, break your response into:
-Overview / Summary
-Include all key product features or points as bullet points
-Stay professional, supportive, and informative
-
-
-Product Context:
-{context}
-
-Conversation:
-{conversation}
-"""
-    
-    clear_terminal()
-    print(final_prompt)
-    response = call_openai(final_prompt)
-    assistant_response = "Assistant: " + response
-    session['conversation_product'].append(assistant_response)
-    session.modified = True
-    return jsonify({"response": response})
-
-@app.route('/report', methods=['POST'])
+@app.route('/report', methods=['GET','POST'])
 def report():
+    if request.method == 'GET':
+            return render_template('report_bot.html')
+    token = request.cookies.get('jwt_token')
+    user = get_authorization_info(token)
+    username = user[1]
     data = request.get_json()
     prompt = data.get('prompt')
-    user_id = session.get('user_id', None)
-    if user_id == None:
-        return jsonify({"response":"User ID not found"}) 
-    report_name = get_report_db_name(user_id)
-    relevant_context = get_relevant_chunks(prompt,report_name,15)
-    if relevant_context == None: 
-        return jsonify({"response":"Please reload the database"}) 
-
-    if 'conversation' not in session or 'context' not in session:
-        session['conversation'] = []
-        session['context'] = []
-    
-    user_prompt = "User: " + prompt
-
-    session['conversation'].append(user_prompt)
-    session['context'].append(relevant_context)
-    conversation = '\n\n'.join(session['conversation'][-10:])
-    context = '\n'.join(session['context'][-3:])
-    final_prompt = f"""
-You are a helpful assistant for the company Ebogenes. 
-Your role is to assist users by answering questions based on their Ebogenes genetic report. 
-
-Guidelines: 
-- Stay focused on genetics and information derived from their report. 
-- Engage naturally—it's okay to greet users or acknowledge their personal comments—as long as the conversation remains centered on their Ebogenes results. 
-- If users go completely off-topic, gently guide them back with a message like: 
-  "I'm here to help you with your Ebogenes genetic report. What would you like to explore?" 
-- Always consider whether the Report Context is relevant to the genetic report before responding. 
-- Provide clear, structured answers with line breaks for readability. 
-- If appropriate, break your response into: 
-  - Overview / Summary 
-    -Include all relevant risks or points as bullet points
-  - Details or Interpretations 
-  - What You Can Do / Next Steps 
-
-Stay professional, supportive, and informative.
-
-
-Report Context:
-{context}
-
-Conversation:
-{conversation}
-"""
-    
-    clear_terminal()
-    print(final_prompt)
-    response = call_openai(final_prompt)
-    assistant_response = "Assistant: " + response
-    session['conversation'].append(assistant_response)
-    session.modified = True
-    return jsonify({"response": response})
-
-@app.route('/reload', methods=['POST'])
-def reload():
-    user_id = session.get('user_id', None)
-    if user_id is None:
-        return '',404
-
-    def background_task(user_id):
-        report_name = get_report_db_name(user_id)
-        ingest_pdf("context/report.pdf", report_name)
-        ingest_pdf("context/product.pdf", "product_collection")
-
-    Thread(target=background_task, args=(user_id,)).start()
-    return '', 204 
-
-@app.route('/generate_user', methods=['POST'])
-def generate_user():
-    user_id = 123456789
-    if 'user_id' not in session:
-        session['user_id'] = user_id
-    session.modified = True
-    return '', 204 
-
-def clear_terminal():
-    os.system('cls' if os.name == 'nt' else 'clear')
+    report_name = data.get('report_name')
+    delete_history(username)
+    return handle_report_chat(prompt,report_name,username)
 
 #polling endpoint
 @app.route('/reload/status')
 def reload_status():
-    if db_exists():  
-        return jsonify({'done': True})
-    else:
-        return jsonify({'done': False})
+    token = request.cookies.get('jwt_token')
+    user = get_authorization_info(token)
+    username = user[1]
+    report_tuples = get_user_report(username)  
+    if not report_tuples:
+        return jsonify({"reports": []}) 
+    
+    report_names_list = [report[2] for report in report_tuples]
+    return jsonify({
+        "reports": report_names_list,
+    }), 200
 
-def db_exists():
-    context = get_relevant_chunks("test","product_collection",1)
-    if context == None: 
-        return False
-    else:
-        return True
+
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=8000)

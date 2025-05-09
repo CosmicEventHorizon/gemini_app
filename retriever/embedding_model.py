@@ -1,11 +1,6 @@
-import requests
+from sentence_transformers import SentenceTransformer
+
+model = SentenceTransformer('all-MiniLM-L6-v2')
 
 def get_embedding(text: str):
-    url = "http://localhost:11434/api/embed"
-    data = {
-        "model": "mxbai-embed-large",
-        "input": text
-    }
-    response = requests.post(url, json=data)
-    response.raise_for_status()
-    return response.json()["embeddings"]
+    return model.encode([text])[0]
