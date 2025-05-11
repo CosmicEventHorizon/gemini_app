@@ -27,7 +27,7 @@ def add_user_report(username,report_name):
     conn.commit()
     conn.close()
 
-def get_user_report(username):
+def get_sql_entry(username):
     conn = sqlite3.connect('instance/users.db')
     cursor = conn.cursor()
     cursor.execute('SELECT * FROM users_reports WHERE username = ?', (username,))
@@ -35,6 +35,10 @@ def get_user_report(username):
     conn.close()
     return user
 
+def get_chromadb_reports(report_names):
+    client = chromadb.PersistentClient('data/chroma_db')
+    reports = [c.name for c in client.list_collections() if c.name in report_names]
+    return reports
 
 def check_user_report(report_name):
     conn = sqlite3.connect('instance/users.db')
@@ -58,23 +62,24 @@ def ingest_pdf(username, report_name):
     #Use fitz to open the pdf file, read each page and 
     #concatenate all text into a string separated by newline
     pdf_path = 'context/' + report_name + '.pdf'
+    doc = None
     try:
         doc = fitz.open(pdf_path)
-        full_text_parts = []
-        for page in doc:
-            page_text = page.get_text()
-            full_text_parts.append(page_text)  
-        full_text = "\n".join(full_text_parts) 
     except:
         return False
-
+    
     add_user_report(username,report_name)
-
-    def process_chunks_background(full_text, report_name):
+    def process_chunks_background(doc, report_name):
         try:
             # split the full_text to chunks
-            # for each chunk, convert it into embeddings and store it in an embeddings array
+            full_text_parts = []
+            for page in doc:
+                page_text = page.get_text()
+                full_text_parts.append(page_text)  
+            full_text = "\n".join(full_text_parts) 
             chunks = chunk_text(full_text)
+
+            # for each chunk, convert it into embeddings and store it in an embeddings array
             n_chunks = len(chunks)
             i = 1
             embeddings = []
@@ -93,11 +98,12 @@ def ingest_pdf(username, report_name):
             # generate ids from 0 to len(chunks) and store it in chromadb
             ids = [f"doc-{i}" for i in range(len(chunks))]    
             collection.add(documents=chunks, embeddings=embeddings, ids=ids)
-        except:
+        except Exception as e:
+            print(e)
             delete_user_report(report_name)
 
     # Start the background task
-    background_thread = Thread(target=process_chunks_background, args=(full_text, report_name))
+    background_thread = Thread(target=process_chunks_background, args=(doc, report_name))
     background_thread.start()
     
     return True

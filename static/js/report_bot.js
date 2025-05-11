@@ -1,13 +1,18 @@
 document.addEventListener("DOMContentLoaded", () => {
+	
+	//get variables to be used for the request
 	const urlParams = new URLSearchParams(window.location.search);
-	const reportText = urlParams.get("text");
-	sessionStorage.setItem("report_text", reportText); 
+	const report_name = urlParams.get("report");
+	const report = report_name || sessionStorage.getItem("report")
+	if (report_name){
+		sessionStorage.setItem("report", report_name); 
+	}
 
+	//get html elements
 	const form = document.getElementById("chat-form");
 	const input = document.getElementById("chat-input");
 	const container = document.getElementById("chat-container");
 	const load_notification = document.getElementById("load-notification");
-	const report_name = sessionStorage.getItem("report_text");
 
 	form.addEventListener("submit", async (e) => {
 		e.preventDefault();
@@ -24,7 +29,7 @@ document.addEventListener("DOMContentLoaded", () => {
 			const res = await fetch("/report", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ prompt, report_name }),
+				body: JSON.stringify({ prompt, report }),
 			});
 			const data = await res.json();
 			loadingElement.remove();
@@ -44,5 +49,5 @@ document.addEventListener("DOMContentLoaded", () => {
 		container.scrollTop = container.scrollHeight;
 	}
 
-	load_notification.innerText = report_name;
+	load_notification.innerText = report;
 });

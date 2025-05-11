@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, make_response, jsonify, redirect, url_for
 from utils.auth import hash_password, check_password, add_user, get_user, generate_jwt, get_authorization_info
-from retriever.ingest import ingest_pdf, check_user_report, get_user_report
+from retriever.ingest import ingest_pdf, check_user_report, get_sql_entry, get_chromadb_reports
 from utils.chat_report import handle_report_chat, delete_report_history
 from utils.chat_product import handle_product_chat, delete_product_history
 import uuid
@@ -72,7 +72,6 @@ def addReport():
     user = get_authorization_info(token)
     username = user[1]
     report_name_exists = check_user_report(report_name)
-    print(report_name_exists)
     if report_name_exists is True:
             return jsonify({'message':'Report already associated with a user!'}), 409
     response = ingest_pdf(username, report_name)
@@ -101,7 +100,9 @@ def report():
     username = user[1]
     data = request.get_json()
     prompt = data.get('prompt')
-    report_name = data.get('report_name')
+    report_name = data.get('report')
+    if report_name not in get_report_names(username):
+        return '', 403
     return handle_report_chat(prompt,report_name,username)
 
 #polling endpoint
@@ -110,16 +111,20 @@ def reload_status():
     token = request.cookies.get('jwt_token')
     user = get_authorization_info(token)
     username = user[1]
-    report_tuples = get_user_report(username)  
-    if not report_tuples:
+    report_names = get_report_names(username)
+    if report_names is None:
         return jsonify({"reports": []}) 
-    
-    report_names_list = [report[2] for report in report_tuples]
+    reports = get_chromadb_reports(report_names)
     return jsonify({
-        "reports": report_names_list,
+        "reports": reports,
     }), 200
 
-
+def get_report_names(username):
+    report_tuples = get_sql_entry(username)
+    if not report_tuples:
+        return None
+    report_names= [report[2] for report in report_tuples]
+    return report_names
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=8000)
