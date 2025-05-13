@@ -3,6 +3,7 @@ from utils.auth import hash_password, check_password, add_user, get_user, genera
 from retriever.ingest import ingest_pdf, check_user_report, get_sql_entry, get_chromadb_reports
 from utils.chat_report import handle_report_chat, delete_report_history
 from utils.chat_product import handle_product_chat, delete_product_history
+from utils.extra import read_faq_from_file
 import uuid
 import os
 
@@ -106,8 +107,8 @@ def report():
     return handle_report_chat(prompt,report_name,username)
 
 #polling endpoint
-@app.route('/reload/status')
-def reload_status():
+@app.route('/reload/report')
+def reload_report():
     token = request.cookies.get('jwt_token')
     user = get_authorization_info(token)
     username = user[1]
@@ -117,6 +118,15 @@ def reload_status():
     reports = get_chromadb_reports(report_names)
     return jsonify({
         "reports": reports,
+    }), 200
+
+@app.route('/reload/faq')
+def reload_faq():
+    questions = read_faq_from_file()
+    if not questions:
+        return jsonify({"faq": []}), 200
+    return jsonify({
+        "faq": list(questions.values())
     }), 200
 
 def get_report_names(username):

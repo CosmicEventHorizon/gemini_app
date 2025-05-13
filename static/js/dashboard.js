@@ -20,8 +20,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 	//poll reports
 	function reloadStatus() {
-		const container = document.getElementById("report-container");
-		fetch("/reload/status")
+		fetch("/reload/report")
 			.then((response) => {
 				if (!response.ok)
 					throw new Error(`HTTP error! Status: ${response.status}`);
@@ -50,6 +49,36 @@ document.addEventListener("DOMContentLoaded", () => {
 			.finally(() => {
 				setTimeout(reloadStatus, 5000);
 			});
+
+		fetch("/reload/faq")
+			.then((response) => {
+				if (!response.ok)
+					throw new Error(`HTTP error! Status: ${response.status}`);
+				return response.json();
+			})
+			.then((data) => {
+				const listed_faq = document.querySelectorAll(".faq-item");
+				if (data.faq && data.faq.length > 0) {
+					data.faq.forEach((faq) => {
+						if (
+							!Array.from(listed_faq).some(
+								(item) => item.textContent === faq
+							)
+						) {
+							appendFAQ(faq);
+						}
+					});
+					//initFAQClickHandlers();
+				} else {
+					console.log("No reports available");
+				}
+			})
+			.catch((error) => {
+				console.log("Error loading reports");
+			})
+			.finally(() => {
+				setTimeout(reloadStatus, 5000);
+			});
 	}
 	reloadStatus();
 
@@ -72,6 +101,15 @@ function appendReport(report_name) {
 	const link = document.createElement("div");
 	link.className = "button report-item";
 	link.textContent = report_name;
+	container.appendChild(link);
+	container.appendChild(document.createElement("br"));
+}
+
+function appendFAQ(faq) {
+	const container = document.getElementById("faq-container");
+	const link = document.createElement("div");
+	link.className = "button faq-item";
+	link.textContent = faq;
 	container.appendChild(link);
 	container.appendChild(document.createElement("br"));
 }
