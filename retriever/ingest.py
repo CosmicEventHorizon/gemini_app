@@ -18,7 +18,7 @@ def chunk_text(text, max_tokens=500, overlap=50):
 
 
 def add_user_report(username,report_name):
-    conn = sqlite3.connect('instance/users.db')
+    conn = sqlite3.connect('../instance/users.db')
     cursor = conn.cursor()
     cursor.execute(
         "INSERT INTO users_reports (username, report_name) VALUES (?, ?)",
@@ -28,7 +28,7 @@ def add_user_report(username,report_name):
     conn.close()
 
 def get_sql_entry(username):
-    conn = sqlite3.connect('instance/users.db')
+    conn = sqlite3.connect('../instance/users.db')
     cursor = conn.cursor()
     cursor.execute('SELECT * FROM users_reports WHERE username = ?', (username,))
     user = cursor.fetchall()
@@ -41,7 +41,7 @@ def get_chromadb_reports(report_names):
     return reports
 
 def check_user_report(report_name):
-    conn = sqlite3.connect('instance/users.db')
+    conn = sqlite3.connect('../instance/users.db')
     cursor = conn.cursor()
     cursor.execute('SELECT * FROM users_reports WHERE report_name = ?', (report_name,))
     report = cursor.fetchone()
@@ -52,7 +52,7 @@ def check_user_report(report_name):
         return True
 
 def delete_user_report(report_name):
-    conn = sqlite3.connect('instance/users.db')
+    conn = sqlite3.connect('../instance/users.db')
     cursor = conn.cursor()
     cursor.execute('DELETE FROM users_reports WHERE report_name = ?', (report_name,))
     conn.commit()

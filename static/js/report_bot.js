@@ -7,9 +7,9 @@ document.addEventListener("DOMContentLoaded", () => {
 		sessionStorage.setItem("report", report_name);
 	}
 	const faq_question = sessionStorage.getItem("faq_question") || null;
-	if (faq_question) {
+	if (faq_question != " ") {
 		appendMessage("user", faq_question);
-		sendPrompt(faq_question,report);
+		sendPrompt(faq_question, report);
 	}
 
 	//get html elements
@@ -24,13 +24,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
 		appendMessage("user", prompt);
 		input.value = "";
-		sendPrompt(prompt,report);
+		sendPrompt(prompt, report);
 	});
-
 
 	load_notification.innerText = report;
 });
-
 
 function appendMessage(sender, text) {
 	const container = document.getElementById("chat-container");

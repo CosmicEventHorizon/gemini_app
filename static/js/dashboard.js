@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
 	const logout = document.getElementById("logout");
 	//logout logic
 	logout.addEventListener("click", () => {
@@ -19,7 +19,7 @@ document.addEventListener("DOMContentLoaded", () => {
 	});
 
 	//poll reports
-	function reloadStatus() {
+	function reloadReports() {
 		fetch("/reload/report")
 			.then((response) => {
 				if (!response.ok)
@@ -47,53 +47,12 @@ document.addEventListener("DOMContentLoaded", () => {
 				appendError("Error loading reports");
 			})
 			.finally(() => {
-				setTimeout(reloadStatus, 10000);
-			});
-
-		fetch("/reload/faq")
-			.then((response) => {
-				if (!response.ok)
-					throw new Error(`HTTP error! Status: ${response.status}`);
-				return response.json();
-			})
-			.then((data) => {
-				const listed_faq = document.querySelectorAll(".faq-item");
-				if (data.faq && data.faq.length > 0) {
-					data.faq.forEach((faq) => {
-						if (
-							!Array.from(listed_faq).some(
-								(item) => item.textContent === faq
-							)
-						) {
-							appendFAQ(faq);
-						}
-					});
-					//initFAQClickHandlers();
-				} else {
-					console.log("No reports available");
-				}
-			})
-			.catch((error) => {
-				console.log("Error loading reports");
-			})
-			.finally(() => {
-				setTimeout(reloadStatus, 10000);
+				setTimeout(reloadReports, 10000);
 			});
 	}
-	reloadStatus();
-
-	//choose report
-	const report_choice = document.getElementById("report-choice");
-	report_choice.addEventListener("click", () => {
-		const selected_report = document.getElementsByClassName("report-selected");
-		if (selected_report.length === 0) {
-			alert("Please choose a report!");
-			return;
-		}
-		window.location.href = `/report?report=${encodeURIComponent(
-			selected_report[0].textContent
-		)}`;
-	});
+	reloadReports();
+	await loadFAQ();
+	initButtonClickHandlers();
 });
 
 function appendReport(report_name) {
@@ -161,16 +120,58 @@ function initReportClickHandlers() {
 	});
 }
 
-function initFAQClickHandlers() {
-	const faqItems = document.querySelectorAll(".faq-item");
+async function loadFAQ() {
+	try {
+		const response = await fetch("/reload/faq");
+		if (!response.ok) {
+			throw new Error(`HTTP error! Status: ${response.status}`);
+		}
+		const data = await response.json();
 
+		const listed_faq = document.querySelectorAll(".faq-item");
+		if (data.faq && data.faq.length > 0) {
+			data.faq.forEach((faq) => {
+				if (
+					!Array.from(listed_faq).some((item) => item.textContent === faq)
+				) {
+					appendFAQ(faq);
+				}
+			});
+		} else {
+			console.log("No FAQs available");
+		}
+	} catch (error) {
+		console.log("Error loading FAQs:", error);
+	}
+}
+
+function initButtonClickHandlers() {
+	const report_choice = document.getElementById("report-choice");
+	report_choice.addEventListener("click", () => {
+		const selected_report = document.getElementsByClassName("report-selected");
+		if (selected_report.length === 0) {
+			alert("Please choose a report!");
+			return;
+		}
+		sessionStorage.setItem("faq_question", " ");
+		window.location.href = `/report?report=${encodeURIComponent(
+			selected_report[0].textContent
+		)}`;
+	});
+	const faqItems = document.querySelectorAll(".faq-item:not(#report-choice)");
 	faqItems.forEach((item) => {
 		item.addEventListener("click", () => {
 			const question = item.textContent;
-
+			const selected_report =
+				document.getElementsByClassName("report-selected");
+			if (selected_report.length === 0) {
+				alert("Please choose a report!");
+				return;
+			}
 			sessionStorage.setItem("faq_question", question);
-
-			window.location.href = "/report";
+			window.location.href = `/report?report=${encodeURIComponent(
+				selected_report[0].textContent
+			)}`;
 		});
 	});
 }

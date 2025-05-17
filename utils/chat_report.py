@@ -25,7 +25,6 @@ def save_conversation(username, data):
 
 def add_message(username, message):
     data = load_conversation(username)
-    print(data)
     data["conversation"].append({
         "message": message,
     })
