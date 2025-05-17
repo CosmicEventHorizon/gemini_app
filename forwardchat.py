@@ -13,7 +13,7 @@ app = Flask(__name__)
 @app.route('/')
 def test():
     token = request.cookies.get('jwt_token')
-    if token is None or get_authorization_info(token)[1]=='test_user':
+    if token is None or get_authorization_info(token)[0] is False or get_authorization_info(token)[1]=='test_user':
         username = 'test_user'
         token = generate_jwt(username)
         rendered = render_template('test_dashboard.html', username=username)
