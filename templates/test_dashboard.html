@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Dashboard</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+  {% from 'partials/header.html' import header %}
+  {{ header("Test Dashboard") }}
+
+
+  {% if username %}
+  <h2>Welcome {{username}}</h2>
+  {% endif %}
+  <button id="login" class="top-right button">Login</button>
+  <p>Choose one of the options below to test our AI Consultant!</p>
+  <h2>My Reports</h2>
+  <div class="dashboard-report-container">
+    <div class="dashboard-panel">
+      <div id="faq-container" class="scroll-area">
+        <div id="report-choice" class="button faq-item">Ask ReportBot your questions on this report!</div>
+        <hr>
+        <h2>Frequently Asked Questions</h2>
+        <!-- FAQ will be dynamically appended here -->
+      </div>
+    </div>
+
+  </div>
+
+  <div class="product-link">
+    <p>Need help with our products?</p>
+    <a href="/product">A</a>
+    <script src="{{ url_for('static', filename='js/test_dashboard.js') }}"></script>
+  </div>
+
+</body>
+
+</html>

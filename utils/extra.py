@@ -1,7 +1,7 @@
 import json
 import os
 
-FAQ_PATH = 'data/faq.json'
+FAQ_PATH = '../instance/faq.json'
 
 def read_faq_from_file():
     try:

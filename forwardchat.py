@@ -10,23 +10,36 @@ import os
 
 app = Flask(__name__)
 
-
 @app.route('/')
+def test():
+    token = request.cookies.get('jwt_token')
+    if token is None or get_authorization_info(token)[1]=='test_user':
+        username = 'test_user'
+        token = generate_jwt(username)
+        rendered = render_template('test_dashboard.html', username=username)
+        response = make_response(rendered)
+        response.set_cookie('jwt_token', token, httponly=True)
+        return response
+    else:
+        return redirect(url_for('home'))
+
+
+@app.route('/home')
 def home():
     new_guest_id = str(uuid.uuid4())
-    resp = make_response()
-    resp.set_cookie('guest_id', new_guest_id)
+    response = make_response()
+    response.set_cookie('guest_id', new_guest_id)
     print("New guest ID set!")
     token = request.cookies.get('jwt_token')
     if token is None or get_authorization_info(token)[0] is False:
-        resp.headers['Location'] = url_for('login')
-        resp.status_code = 302 #redirect code
-        return resp
+        response.headers['Location'] = url_for('login')
+        response.status_code = 302 #redirect code
+        return response
     user = get_authorization_info(token)
     username = user[1]
     delete_report_history(username)
-    resp.set_data(render_template('dashboard.html', userName=username))
-    return resp
+    response.set_data(render_template('dashboard.html', userName=username))
+    return response
 
 @app.route('/signup', methods=['GET','POST'])
 def signup_post():
@@ -102,6 +115,8 @@ def report():
     data = request.get_json()
     prompt = data.get('prompt')
     report_name = data.get('report')
+    if report_name == 'test_data':
+        return handle_report_chat(prompt,report_name,username)
     if report_name not in get_report_names(username):
         return '', 403
     return handle_report_chat(prompt,report_name,username)

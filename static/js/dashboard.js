@@ -47,7 +47,7 @@ document.addEventListener("DOMContentLoaded", () => {
 				appendError("Error loading reports");
 			})
 			.finally(() => {
-				setTimeout(reloadStatus, 5000);
+				setTimeout(reloadStatus, 10000);
 			});
 
 		fetch("/reload/faq")
@@ -77,7 +77,7 @@ document.addEventListener("DOMContentLoaded", () => {
 				console.log("Error loading reports");
 			})
 			.finally(() => {
-				setTimeout(reloadStatus, 5000);
+				setTimeout(reloadStatus, 10000);
 			});
 	}
 	reloadStatus();
@@ -157,6 +157,20 @@ function initReportClickHandlers() {
 				r.classList.remove("report-selected");
 			});
 			report.classList.add("report-selected");
+		});
+	});
+}
+
+function initFAQClickHandlers() {
+	const faqItems = document.querySelectorAll(".faq-item");
+
+	faqItems.forEach((item) => {
+		item.addEventListener("click", () => {
+			const question = item.textContent;
+
+			sessionStorage.setItem("faq_question", question);
+
+			window.location.href = "/report";
 		});
 	});
 }

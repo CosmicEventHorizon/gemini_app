@@ -10,7 +10,7 @@ load_dotenv('config.env')
 SECRET_KEY = os.getenv('JWT_SECRET')
 
 def get_user(username):
-    conn = sqlite3.connect('instance/users.db')
+    conn = sqlite3.connect('../instance/users.db')
     cursor = conn.cursor()
     cursor.execute('SELECT * FROM users WHERE username = ?', (username,))
     user = cursor.fetchone()
@@ -18,7 +18,7 @@ def get_user(username):
     return user
 
 def add_user(username, password, email, first_name, last_name, dob):
-    conn = sqlite3.connect('instance/users.db')
+    conn = sqlite3.connect('../instance/users.db')
     cursor = conn.cursor()
     cursor.execute(
         "INSERT INTO users (username, password, email, first_name, last_name, dob) VALUES (?, ?, ?, ?, ?, ?)",
@@ -34,7 +34,6 @@ def check_password(stored_password, password):
     return bcrypt.checkpw(password.encode('utf-8'), stored_password)
 
 def generate_jwt(username):
-    print(SECRET_KEY)
     token = jwt.encode({
         'username': username,
         'exp': datetime.utcnow() + timedelta(hours=1)

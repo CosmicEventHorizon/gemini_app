@@ -208,7 +208,7 @@ html, body {
 }
 
 
-.logout {
+.top-right {
   position: fixed;  
   top: 2.2rem;
   right: 1rem;
